@@ -3,6 +3,7 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status
+from datetime import timedelta 
 
 from config import settings
 
@@ -12,7 +13,8 @@ from app.dao import users as user_dao
 from app.jwt import jwt as jwt_confirm
 from app.models import User
 
-router: APIRouter = APIRouter(prefix=settings.api.enter_prefix)
+
+router: APIRouter = APIRouter(prefix=settings.api.auth_prefix)
 
 @router.post("")
 async def add_user(user_schema: UserBaseSchema, 
@@ -34,9 +36,14 @@ async def add_user(user_schema: UserBaseSchema,
             detail="Incorrect nickname or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if not await user_dao.add_user(session=session, ):
-        data = {"message": "Error creating user"}
-        return HTTPException(status_code=500, detail=data)
     
-    data = {"message" "Success creating user"}
-    return data
+    token_data = {
+        "first_name": user.first_name,
+        "second_name": user.second_name,
+        "nickname": user.nickname,
+    }
+    access_token_expires = timedelta(hours=settings.jwt.token_hours)
+    access_token = jwt_confirm.create_access_token(data=token_data,
+            expires_delta=access_token_expires)
+    
+    return {"access_token": access_token, "token_type": "bearer"}

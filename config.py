@@ -11,7 +11,7 @@ class RunConfig(BaseModel):
 class ApiPrefix (BaseModel):
     prefix: str = "/api"
     choice_prefix: str = "/choice"
-    enter_prefix: str = "/enter"
+    auth_prefix: str = "/auth"
     admin_prefix: str = "/admin"
 
 class DatabaseConfig(BaseModel): 
