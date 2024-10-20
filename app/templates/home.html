@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        .column {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 45%;
+        }
+        h3 {
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="column">
+        <h3>All Users</h3>
+        <ul id="users-list"></ul>
+    </div>
+    <div class="column">
+        <h3>Your Chats</h3>
+        <ul id="chats-list"></ul>
+    </div>
+
+    <script>
+        async function fetchData() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const usersResponse = await fetch('/api/users/all', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+                
+                const users = await usersResponse.json();
+                const usersList = document.getElementById('users-list');
+
+                for (const userId in users) {
+                    const user = users[userId];
+                    const li = document.createElement('li');
+                    li.textContent = `${user.first_name} ${user.second_name} (${user.nickname})`;
+                    li.setAttribute('data-id', userId);
+                    usersList.appendChild(li);
+                }
+
+                const chatsResponse = await fetch('/api/chats/by_user', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+                const chats = await chatsResponse.json();
+                const chatsList = document.getElementById('chats-list');
+                
+                chats.forEach(chat => {
+                    const li = document.createElement('li');
+                    li.textContent = chat.title;
+                    chatsList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+            }
+        }
+
+        fetchData();
+    </script>
+</body>
+</html>

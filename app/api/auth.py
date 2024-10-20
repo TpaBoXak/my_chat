@@ -6,6 +6,7 @@ from fastapi import status
 from datetime import timedelta 
 
 from config import settings
+from app import redis_client
 
 from app import db_helper
 from app.schemas.users import UserBaseSchema
@@ -17,7 +18,7 @@ from app.models import User
 router: APIRouter = APIRouter(prefix=settings.api.auth_prefix)
 
 @router.post("")
-async def add_user(user_schema: UserBaseSchema, 
+async def auth(user_schema: UserBaseSchema, 
     session: AsyncSession = Depends(db_helper.session_getter)
 ):
     user: User = await user_dao.get_user_by_nickname(session=session, 
@@ -38,6 +39,7 @@ async def add_user(user_schema: UserBaseSchema,
         )
     
     token_data = {
+        "user_id": user.id,
         "first_name": user.first_name,
         "second_name": user.second_name,
         "nickname": user.nickname,
@@ -45,5 +47,7 @@ async def add_user(user_schema: UserBaseSchema,
     access_token_expires = timedelta(hours=settings.jwt.token_hours)
     access_token = jwt_confirm.create_access_token(data=token_data,
             expires_delta=access_token_expires)
+    
+    await redis_client.set(access_token, "True", ex=43200)
     
     return {"access_token": access_token, "token_type": "bearer"}

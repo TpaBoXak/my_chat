@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from pydantic import PostgresDsn
+from pydantic import RedisDsn
+
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 
@@ -10,9 +12,9 @@ class RunConfig(BaseModel):
 
 class ApiPrefix (BaseModel):
     prefix: str = "/api"
-    choice_prefix: str = "/choice"
+    users_prefix: str = "/users"
     auth_prefix: str = "/auth"
-    admin_prefix: str = "/admin"
+    chat_prefix: str = "/chats"
 
 class DatabaseConfig(BaseModel): 
     url: PostgresDsn
@@ -34,6 +36,10 @@ class JWTConfig(BaseModel):
     token_hours: int = 12
 
 
+class RedisConfig(BaseModel):
+    url: RedisDsn = "redis://localhost:6379/0"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.template"),
@@ -44,7 +50,8 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
-    jwt: JWTConfig = JWTConfig() 
+    jwt: JWTConfig = JWTConfig()
+    redis: RedisConfig = RedisConfig()
     
     
 
