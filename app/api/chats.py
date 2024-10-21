@@ -61,6 +61,13 @@ async def get_chat_messages(
     session: AsyncSession = Depends(db_helper.session_getter),
     user_id: int = Depends(get_current_user)
 ):
+    if not await chat_dao.user_in_chat(
+        session=session, chat_id=chat_id, user_id=user_id
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect input membres data",
+        )
     messages: List[MessageSchema] = await message_dao. \
             messages_by_chat_id(session=session, chat_id=chat_id)
     return messages

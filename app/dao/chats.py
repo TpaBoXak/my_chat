@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy import func
+from sqlalchemy import and_
 from typing import Optional
 
 from app.models.chat import Chat
@@ -10,8 +11,9 @@ from app.schemas.chat import ChatBaseSchema
 
 async def get_chats_by_user(session: AsyncSession, user_id: int):
     stmt = select(Chat.id, Chat.title).\
-            where(Chat.is_group).join(UserChat,
-            UserChat.user_id == user_id).select_from(Chat)
+            where(UserChat.user_id == user_id).join(Chat,
+            and_(UserChat.chat_id == Chat.id, Chat.is_group)).\
+            select_from(UserChat)
     users_info: list[tuple] = await session.execute(stmt)
     
     result = {}
@@ -67,7 +69,7 @@ async def delete_chat(
 ) -> None:
     try:
         stmt = select(UserChat).where(UserChat.chat_id == chat_id)
-        users_chats: list[UserChat] = session.execute(stmt)
+        users_chats: list[UserChat] = await session.execute(stmt)
         message_dao.delete_message_by_chat(session=session, chat_id=chat_id)
 
         for user_chat in users_chats:
@@ -76,3 +78,15 @@ async def delete_chat(
         session.rollback()
     else:
         session.commit()
+
+
+async def user_in_chat(
+    session: AsyncSession, chat_id: int, user_id: int
+) -> bool:
+    stmt = select(UserChat.id).where(UserChat.user_id == user_id,
+            UserChat.chat_id == chat_id)
+    result = await session.execute(stmt)
+    result = result.scalar_one_or_none()
+    if result:
+        return True
+    return False

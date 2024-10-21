@@ -4,24 +4,10 @@ services:
     image: postgres
     environment:
       POSTGRES_DB: my_chat
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: Arseniy
+      POSTGRES_PASSWORD: 12345
     ports:
-      - "5432:5432"
-
-  adminer:
-    image: adminer
-    ports:
-      - "8001:8001"
-
-  pgadmin:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: gl.arseniy@mail.ru
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "5050:80"
+      - "5434:5432"
   
   redis:
     image: redis:alpine

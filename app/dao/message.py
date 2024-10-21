@@ -9,7 +9,7 @@ from sqlalchemy import select
 async def delete_message_by_chat(session: AsyncSession, chat_id: int) -> bool:
     try:
         stmt = select(Message).where(Message.chat_id == chat_id)
-        messsages: list[Message] = session.execute(stmt)
+        messsages: list[Message] = await session.execute(stmt)
 
         for messsage in messsages:
             session.delete(messsage)
