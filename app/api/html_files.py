@@ -13,7 +13,7 @@ templates = Jinja2Templates(directory="app/templates")
 async def get_login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-@router.get("/home", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 async def get_home_page(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 

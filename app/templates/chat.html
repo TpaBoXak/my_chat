@@ -49,6 +49,12 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .back-button {
+            background-color: #007bff;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +63,7 @@
 
     <input type="text" id="message-input" placeholder="Напишите сообщение...">
     <button id="send-button">Отправить</button>
+    <button id="back-to-home" class="back-button">Back to Home</button>
 
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script>
@@ -112,6 +119,9 @@
         socket.on('receive_message', (message) => {
             console.log('Новое сообщение:', message);
             addMessage(message);
+        });
+        document.getElementById('back-to-home').addEventListener('click', () => {
+            window.location.href = '/';
         });
 
         loadMessages();

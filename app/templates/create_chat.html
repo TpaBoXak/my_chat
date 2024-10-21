@@ -39,6 +39,12 @@
         .user-checkbox {
             margin: 10px 0;
         }
+        .back-button {
+            background-color: #007bff;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -48,6 +54,7 @@
         <h3>Select Participants</h3>
         <div id="users-checkboxes"></div>
         <button id="create-chat-submit">Create Chat</button>
+        <button id="back-to-home" class="back-button">Back to Home</button>
     </div>
 
     <script>
@@ -112,7 +119,7 @@
                 });
 
                 if (response.ok) {
-                    window.location.href = '/home';
+                    window.location.href = '/';
                 } else {
                     const result = await response.json();
                     alert('Error creating chat: ' + result.detail);
@@ -120,6 +127,9 @@
             } catch (error) {
                 console.error('Ошибка при создании чата:', error);
             }
+        });
+        document.getElementById('back-to-home').addEventListener('click', () => {
+            window.location.href = '/';
         });
 
         fetchUsers();
