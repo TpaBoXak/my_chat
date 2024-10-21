@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
+from contextlib import asynccontextmanager
 
 from .base import Base
 from .user import User
@@ -33,8 +34,13 @@ class DataBaseHelper:
                 )
     async def dispose(self) -> None:
         await self.engine.dispose()
-
+  
     async def session_getter(self):
+        async with self.session_factory() as session:
+            yield session
+
+    @asynccontextmanager
+    async def session_getter_context(self):
         async with self.session_factory() as session:
             yield session
         

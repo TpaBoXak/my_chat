@@ -45,6 +45,7 @@
         <h3>Your Chats</h3>
         <ul id="chats-list"></ul>
     </div>
+    <button id="create-chat-button">Создать чат</button>
 
     <script>
         async function fetchData() {
@@ -82,15 +83,21 @@
                 const chats = await chatsResponse.json();
                 const chatsList = document.getElementById('chats-list');
                 
-                chats.forEach(chat => {
+                for (const chatId in chats) {
+                    const chat = chats[chatId];
                     const li = document.createElement('li');
-                    li.textContent = chat.title;
+                    li.textContent = `Название: ${chat.title}`;
+                    li.setAttribute('data-id', chatId);
+                    li.setAttribute('onclick', `window.location.href='/chat/${chatId}'`);
                     chatsList.appendChild(li);
-                });
+                }
             } catch (error) {
                 console.error('Ошибка при получении данных:', error);
             }
         }
+        document.getElementById('create-chat-button').addEventListener('click', function() {
+            window.location.href = '/create-chat';
+        });
 
         fetchData();
     </script>

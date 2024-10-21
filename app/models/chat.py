@@ -21,7 +21,6 @@ class UserChat(Base):
 class Chat(Base):
     __tablename__ = "chats"
     title: Mapped[str] = mapped_column(String(128), nullable=False)
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
     is_group: Mapped[bool] = mapped_column(Boolean, nullable=False)
     time_created: Mapped[datetime] = mapped_column(DateTime, nullable=False,
             server_default=func.now())

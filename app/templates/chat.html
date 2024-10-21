@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #chat-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 60%;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .message strong {
+            color: #333;
+        }
+        .message p {
+            margin: 0;
+        }
+        #message-input {
+            width: 60%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        #send-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container"></div>
+
+    <input type="text" id="message-input" placeholder="Напишите сообщение...">
+    <button id="send-button">Отправить</button>
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script>
+        const chatId = window.location.pathname.split('/').pop();
+        const token = localStorage.getItem('access_token');
+        const socket = io('http://localhost:8000', {
+            auth: {
+                token: token
+            }
+        });
+
+        const chatContainer = document.getElementById('chat-container');
+
+        function addMessage(message) {
+            const div = document.createElement('div');
+            div.classList.add('message');
+            div.innerHTML = `<strong>${message.first_name} ${message.second_name}:</strong> <p>${message.text}</p>`;
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function loadMessages() {
+            try {
+                const response = await fetch(`/api/chats/${chatId}/messages`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                });
+                const messages = await response.json();
+                messages.forEach(addMessage);
+            } catch (error) {
+                console.error('Ошибка при загрузке сообщений:', error);
+            }
+        }
+
+        document.getElementById('send-button').addEventListener('click', () => {
+            const messageText = document.getElementById('message-input').value;
+            if (messageText.trim()) {
+                socket.emit('send_message', { 
+                    chat_id: chatId, 
+                    text: messageText, 
+                    token: token
+                });
+                document.getElementById('message-input').value = '';
+            }
+        });
+
+        socket.on('connect', () => {
+            console.log('Подключено к сокету!');
+            socket.emit('join', chatId);
+        });
+
+        socket.on('receive_message', (message) => {
+            console.log('Новое сообщение:', message);
+            addMessage(message);
+        });
+
+        loadMessages();
+    </script>
+</body>
+</html>
