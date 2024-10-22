@@ -15,4 +15,4 @@
 # Пользователи для логина в системе
 Nick: ars, pass: 123
 Nick: pit, pass: 1234
-Nick: ars, pass: 321
+Nick: ivan, pass: 321
